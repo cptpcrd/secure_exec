@@ -1,0 +1,19 @@
+[package]
+name = "secure_exec"
+version = "0.1.0"
+edition = "2018"
+
+description = "A library to check for 'secure execution' (i.e. set-UID/set-GID) on *nix systems."
+readme = "README.md"
+authors = ["cptpcrd"]
+license = "MIT"
+categories = ["os::unix-apis"]
+repository = "https://github.com/cptpcrd/secure_exec"
+
+[features]
+default = ["std"]
+
+std = []
+
+[dependencies]
+libc = { version = "0.2", default-features = false }

@@ -1,0 +1,7 @@
+[no_std_coverage]
+no-default-features = true
+
+[std_coverage]
+
+[report]
+out = ["Html"]
