@@ -11,6 +11,8 @@
 //! }
 //! ```
 
+#![cfg_attr(not(feature = "std"), no_std)]
+
 #[cfg(target_os = "linux")]
 const AT_SECURE: libc::c_ulong = 23;
 
