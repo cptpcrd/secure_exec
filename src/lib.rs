@@ -92,8 +92,11 @@ pub fn is_secure_uncached() -> bool {
 ///
 /// ## Concurrency
 ///
-/// **TL;DR**: Either avoid calling this function from multiple threads, or call it at least once
-/// from the main thread before spawning any other threads.
+/// **TL;DR**: If you're going to switch UIDs/GIDs, either avoid calling this function from multiple
+/// threads, or call it at least once from the main thread before spawning any other threads.
+///
+/// (Side note: Switching UIDs/GIDs in multithreaded programs is generally not a good idea unless
+/// carefully synchronized anyway.)
 ///
 /// In the interests of efficiency, the cache is implemented using an atomic data type, not a lock
 /// or a `Once`-like synchronization primitive. As a result, if this function is called concurrently
@@ -102,7 +105,7 @@ pub fn is_secure_uncached() -> bool {
 ///
 /// So if you call this function for the first time across multiple threads, you should **not**
 /// assume that it's safe to take actions that might change the result of [`is_secure_uncached()`]
-/// as soon as one of the calls finishes, because other threads might checking concurrently. You
+/// as soon as one of the calls finishes, because other threads might be checking concurrently. You
 /// need to either synchronize calls to this function using a mutex, or (preferably) call it before
 /// launching any other threads.
 ///
