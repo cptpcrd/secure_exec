@@ -42,31 +42,25 @@ extern "C" {
 #[allow(clippy::needless_return)]
 #[inline]
 pub fn is_secure_uncached() -> bool {
-    #[cfg(target_os = "linux")]
-    return unsafe { getauxval(AT_SECURE) } != 0;
-
-    #[cfg(any(
-        target_os = "freebsd",
-        target_os = "openbsd",
-        target_os = "netbsd",
-        target_os = "dragonfly",
-        target_os = "macos",
-        target_os = "solaris",
-        target_os = "illumos",
-    ))]
-    return unsafe { issetugid() } != 0;
-
-    #[cfg(not(any(
-        target_os = "linux",
-        target_os = "freebsd",
-        target_os = "openbsd",
-        target_os = "netbsd",
-        target_os = "dragonfly",
-        target_os = "macos",
-        target_os = "solaris",
-        target_os = "illumos",
-    )))]
-    return unsafe { libc::geteuid() != libc::getuid() || libc::getegid() != libc::getgid() };
+    cfg_if::cfg_if! {
+        if #[cfg(target_os = "linux")] {
+            return unsafe { getauxval(AT_SECURE) } != 0;
+        } else if #[cfg(any(
+            target_os = "freebsd",
+            target_os = "openbsd",
+            target_os = "netbsd",
+            target_os = "dragonfly",
+            target_os = "macos",
+            target_os = "solaris",
+            target_os = "illumos",
+        ))] {
+            return unsafe { issetugid() } != 0;
+        } else {
+            return unsafe {
+                libc::geteuid() != libc::getuid() || libc::getegid() != libc::getgid()
+            };
+        }
+    }
 }
 
 /// Check if this program was launched in a way that requires "secure execution".

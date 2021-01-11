@@ -17,3 +17,4 @@ std = []
 
 [dependencies]
 libc = { version = "0.2", default-features = false }
+cfg-if = "0.1"
