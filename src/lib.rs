@@ -13,27 +13,6 @@
 
 #![cfg_attr(not(feature = "std"), no_std)]
 
-#[cfg(target_os = "linux")]
-const AT_SECURE: libc::c_ulong = 23;
-
-#[cfg(target_os = "linux")]
-extern "C" {
-    fn getauxval(ent_type: libc::c_ulong) -> libc::c_ulong;
-}
-
-#[cfg(any(
-    target_os = "freebsd",
-    target_os = "openbsd",
-    target_os = "netbsd",
-    target_os = "dragonfly",
-    target_os = "macos",
-    target_os = "solaris",
-    target_os = "illumos",
-))]
-extern "C" {
-    fn issetugid() -> libc::c_int;
-}
-
 /// Identical to [`is_secure()`], but with no caching (i.e. probes the OS-specific feature directly).
 ///
 /// See the warnings in [`is_secure()`]'s documentation regarding the result changing.
@@ -44,6 +23,12 @@ extern "C" {
 pub fn is_secure_uncached() -> bool {
     cfg_if::cfg_if! {
         if #[cfg(target_os = "linux")] {
+            const AT_SECURE: libc::c_ulong = 23;
+
+            extern "C" {
+                fn getauxval(ent_type: libc::c_ulong) -> libc::c_ulong;
+            }
+
             return unsafe { getauxval(AT_SECURE) } != 0;
         } else if #[cfg(any(
             target_os = "freebsd",
@@ -54,6 +39,10 @@ pub fn is_secure_uncached() -> bool {
             target_os = "solaris",
             target_os = "illumos",
         ))] {
+            extern "C" {
+                fn issetugid() -> libc::c_int;
+            }
+
             return unsafe { issetugid() } != 0;
         } else {
             return unsafe {
