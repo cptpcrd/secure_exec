@@ -22,14 +22,11 @@
 #[inline]
 pub fn is_secure_uncached() -> bool {
     cfg_if::cfg_if! {
-        if #[cfg(target_os = "linux")] {
-            const AT_SECURE: libc::c_ulong = 23;
-
-            extern "C" {
-                fn getauxval(ent_type: libc::c_ulong) -> libc::c_ulong;
-            }
-
-            return unsafe { getauxval(AT_SECURE) } != 0;
+        if #[cfg(any(
+            target_os = "linux",
+            all(target_os = "android", target_pointer_width = "64"),
+        ))] {
+            return unsafe { libc::getauxval(libc::AT_SECURE) } != 0;
         } else if #[cfg(any(
             target_os = "freebsd",
             target_os = "openbsd",
