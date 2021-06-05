@@ -93,20 +93,16 @@ pub fn is_secure_uncached() -> bool {
 pub fn is_secure() -> bool {
     use core::sync::atomic::{AtomicU8, Ordering};
 
-    static mut RES: AtomicU8 = AtomicU8::new(2);
+    static RES: AtomicU8 = AtomicU8::new(2);
 
-    match unsafe { RES.load(Ordering::SeqCst) } {
+    match RES.load(Ordering::SeqCst) {
         0 => false,
         1 => true,
 
         // Not set; need to re-determine
         _ => {
             let res = is_secure_uncached();
-
-            unsafe {
-                RES.store(res as u8, Ordering::SeqCst);
-            }
-
+            RES.store(res as u8, Ordering::SeqCst);
             res
         }
     }
